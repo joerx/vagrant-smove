@@ -59,3 +59,11 @@ if [ ! -f /usr/bin/bower ]; then
   echo -e "\e[0;36m[Installing bower]\e[0m"
   npm -g --silent install bower
 fi
+
+if grep --quiet Singapore /etc/timezone; then
+  echo -e "Timezone is ok"
+else 
+  echo -e "\e[0;36m[Setting time zone]\e[0m"
+  echo "Asia/Singapore" | sudo tee /etc/timezone
+  dpkg-reconfigure --frontend noninteractive tzdata
+fi
