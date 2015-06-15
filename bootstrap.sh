@@ -1,8 +1,15 @@
 export DEBIAN_FRONTEND=noninteractive
 
+if ! cat /etc/default/locale | grep LC_ALL > /dev/null; then
+  echo -e "\e[0;36m[Setting locale]\e[0m"
+  printf 'LANG="en_US.UTF-8"\nLC_ALL="en_US.UTF-8"' > /etc/default/locale
+  . /etc/default/locale
+  dpkg-reconfigure locales
+fi
+
 echo -e "\e[0;36m[Upgrading system]\e[0m"
-# apt-get -qq update
-# apt-get -yqq upgrade
+apt-get -qq update
+apt-get -yqq upgrade
 
 if [ ! -f /usr/bin/curl ]; then
   echo -e "\e[0;36m[Installing curl]\e[0m"
@@ -59,7 +66,7 @@ if [ ! -d /home/vagrant/.nvm ]; then
   echo "source ~/.nvm/nvm.sh" >> /home/vagrant/.bashrc
   source /home/vagrant/.nvm/nvm.sh
   nvm install 0.10 > /dev/null 2> /dev/null
-  nvm install 0.12 > /dev/null 2> /dev/null
+  nvm install 0.12.2 > /dev/null 2> /dev/null
   chown -R vagrant:vagrant /home/vagrant/.nvm
   echo "Using node `nvm current`"
   export HOME=/home/root

@@ -23,6 +23,7 @@ Vagrant.configure(2) do |config|
   # accessing "localhost:8080" will access port 80 on the guest machine.
   config.vm.network "forwarded_port", guest: 1337, host: 1337 # Sails
   config.vm.network "forwarded_port", guest: 80, host: 8080 # Apache
+  config.vm.network "forwarded_port", guest: 3306, host: 3306 # MySQL
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -45,8 +46,9 @@ Vagrant.configure(2) do |config|
   
   config.vm.provider "virtualbox" do |vb|
     # vb.gui = true
-    vb.name = "sails"
-    vb.memory = "1024"
+    vb.name = "smove"
+    vb.memory = 1024
+    vb.cpus = 4
   end
   #
   # View the documentation for the provider you are using for more
