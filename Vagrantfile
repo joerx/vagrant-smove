@@ -23,11 +23,11 @@ Vagrant.configure(2) do |config|
   # accessing "localhost:8080" will access port 80 on the guest machine.
   config.vm.network "forwarded_port", guest: 1337, host: 1337 # Sails
   config.vm.network "forwarded_port", guest: 80, host: 8080 # Apache
-  config.vm.network "forwarded_port", guest: 3306, host: 3306 # MySQL
+  # config.vm.network "forwarded_port", guest: 3306, host: 3306 # MySQL
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  # config.vm.network "private_network", ip: "192.168.33.10"
+  config.vm.network "private_network", ip: "192.168.33.10"
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
@@ -38,7 +38,12 @@ Vagrant.configure(2) do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  config.vm.synced_folder "../", "/src"
+  config.vm.synced_folder "../", "/src", 
+    id: "smove",
+    # owner: "vagrant", 
+    # group: "www-data", 
+    nfs: true,  
+    mount_options: ["nolock,vers=3,udp"]
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
