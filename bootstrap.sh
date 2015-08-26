@@ -1,5 +1,6 @@
 export DEBIAN_FRONTEND=noninteractive
 
+# Fix locale
 if ! cat /etc/default/locale | grep LC_ALL > /dev/null; then
   echo -e "\e[0;36m[Setting locale]\e[0m"
   printf 'LANG="en_US.UTF-8"\nLC_ALL="en_US.UTF-8"' > /etc/default/locale
@@ -7,25 +8,30 @@ if ! cat /etc/default/locale | grep LC_ALL > /dev/null; then
   dpkg-reconfigure locales
 fi
 
+# Upgrade everything
 echo -e "\e[0;36m[Upgrading system]\e[0m"
 apt-get -qq update
 apt-get -yqq upgrade
 
+# Curl
 if [ ! -f /usr/bin/curl ]; then
   echo -e "\e[0;36m[Installing curl]\e[0m"
   apt-get -yqq install curl
 fi
 
+# Git
 if [ ! -f /usr/bin/git ]; then
   echo -e "\e[0;36m[Installing git]\e[0m"
   apt-get -yqq install git-core
 fi
 
+# Build essentials (needed by nodejs)
 if [ ! -f /usr/bin/g++ ]; then
   echo -e "\e[0;36m[Installing build-essential]\e[0m"
   apt-get -yqq install build-essential
 fi
 
+# MySQL server, using 'root' as root pw. It's just a dev box after all
 if [ ! -f /usr/bin/mysql ]; then
   echo -e "\e[0;36m[Installing mysql]\e[0m"
   echo 'MySQL superuser password is "root"'
@@ -35,6 +41,7 @@ if [ ! -f /usr/bin/mysql ]; then
   apt-get -yqq install mysql-server
 fi
 
+# Apache, php5, phpmyadmin
 if [ ! -f /etc/init.d/apache2 ]; then
   echo -e "\e[0;36m[Installing apache2, php5, phpmyadmin]\e[0m"
 
@@ -46,55 +53,20 @@ if [ ! -f /etc/init.d/apache2 ]; then
   apt-get -yqq install apache2 php5 php5-cli phpmyadmin
 fi
 
+# TZ must be Singapore
 if grep --quiet Singapore /etc/timezone; then
-  echo -e "Timezone is ok"
+  echo -e "\e[0;36m[Timezone is OK]\e[0m"
 else 
   echo -e "\e[0;36m[Setting time zone]\e[0m"
   echo "Asia/Singapore" | sudo tee /etc/timezone
   dpkg-reconfigure --frontend noninteractive tzdata
 fi
 
-if [ ! -d /home/vagrant/.nvm ]; then
-  echo -e "\e[0;36m[Installing nvm]\e[0m"
-  if [ ! -f /usr/bin/node ]; then
-    echo -e "Removing npm from apt-get"
-    apt-get remove nodejs npm && apt-get autoremove
-    rm -f /etc/apt/sources.list.d/nodesource.list
-  fi
-  export HOME=/home/vagrant
-  curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.25.4/install.sh | bash
-  echo "source ~/.nvm/nvm.sh" >> /home/vagrant/.bashrc
-  source /home/vagrant/.nvm/nvm.sh
-  nvm install 0.10 > /dev/null 2> /dev/null
-  nvm install 0.12.2 > /dev/null 2> /dev/null
-  chown -R vagrant:vagrant /home/vagrant/.nvm
-  echo "Using node `nvm current`"
-  export HOME=/home/root
+# Node.js - install globally or deployment via shipit.js won't work
+if [ ! -f /usr/bin/node ]; then
+  echo -e "\e[0;36m[Installing nodejs 0.12]\e[0m"
+  echo "deb https://deb.nodesource.com/node_0.12 vivid main" > /etc/apt/sources.list.d/nodesource.list
+  apt-get -qq update
+  apt-get -yqq install nodejs
+  npm -g --silent install grunt-cli bower
 fi
-
-
-function npm_globals {
-  source /home/vagrant/.nvm/nvm.sh
-  nvm use $1
-
-  if ! type grunt; then
-    echo -e "\e[0;36m[Installing grunt for $1]\e[0m"
-    npm -g --silent install grunt-cli
-    chown -R vagrant:vagrant /home/vagrant/.nvm
-  fi
-
-  if ! type sails; then
-    echo -e "\e[0;36m[Installing sails for $1]\e[0m"
-    npm -g --silent install sails
-    chown -R vagrant:vagrant /home/vagrant/.nvm
-  fi
-
-  if ! type bower; then
-    echo -e "\e[0;36m[Installing bower for $1]\e[0m"
-    npm -g --silent install bower
-    chown -R vagrant:vagrant /home/vagrant/.nvm
-  fi
-}
-
-npm_globals 0.10
-npm_globals 0.12
