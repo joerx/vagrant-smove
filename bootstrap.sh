@@ -10,8 +10,8 @@ fi
 
 # Upgrade everything
 echo -e "\e[0;36m[Upgrading system]\e[0m"
-apt-get -qq update
-apt-get -yqq upgrade
+# apt-get -qq update
+# apt-get -yqq upgrade
 
 # Curl
 if [ ! -f /usr/bin/curl ]; then
@@ -51,6 +51,8 @@ if [ ! -f /etc/init.d/apache2 ]; then
   echo 'phpmyadmin phpmyadmin/mysql/app-pass password root' | debconf-set-selections
   echo 'phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2' | debconf-set-selections
   apt-get -yqq install apache2 php5 php5-cli phpmyadmin
+  a2enmod rewrite
+  service apache2 restart
 fi
 
 # TZ must be Singapore
@@ -65,6 +67,7 @@ fi
 # Node.js - install globally or deployment via shipit.js won't work
 if [ ! -f /usr/bin/node ]; then
   echo -e "\e[0;36m[Installing nodejs 0.12]\e[0m"
+  curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
   echo "deb https://deb.nodesource.com/node_0.12 vivid main" > /etc/apt/sources.list.d/nodesource.list
   apt-get -qq update
   apt-get -yqq install nodejs
