@@ -50,8 +50,9 @@ if [ ! -f /etc/init.d/apache2 ]; then
   echo 'phpmyadmin phpmyadmin/mysql/admin-pass password root' | debconf-set-selections
   echo 'phpmyadmin phpmyadmin/mysql/app-pass password root' | debconf-set-selections
   echo 'phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2' | debconf-set-selections
-  apt-get -yqq install apache2 php5 php5-cli phpmyadmin
+  apt-get -yqq install apache2 php5 php5-cli phpmyadmin php5-mcrypt
   a2enmod rewrite
+  php5enmod mcrypt
   service apache2 restart
 fi
 
